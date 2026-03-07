@@ -1,12 +1,13 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-INPUT_PATH = "data/processed/cicids_combined.parquet"
-
-X_TRAIN_PATH = "data/processed/X_train.parquet"
-X_TEST_PATH = "data/processed/X_test.parquet"
-Y_TRAIN_PATH = "data/processed/y_train.parquet"
-Y_TEST_PATH = "data/processed/y_test.parquet"
+from config.settings import (
+    COMBINED_DATASET,
+    X_TRAIN,
+    X_TEST,
+    Y_TRAIN,
+    Y_TEST
+)
 
 
 def clean_labels(df):
@@ -25,7 +26,7 @@ def clean_labels(df):
 def main():
 
     print("Loading dataset...")
-    df = pd.read_parquet(INPUT_PATH)
+    df = pd.read_parquet(COMBINED_DATASET)
 
     print("Cleaning labels...")
     df = clean_labels(df)
@@ -45,11 +46,11 @@ def main():
 
     print("Saving processed splits...")
 
-    X_train.to_parquet(X_TRAIN_PATH)
-    X_test.to_parquet(X_TEST_PATH)
+    X_train.to_parquet(X_TRAIN)
+    X_test.to_parquet(X_TEST)
 
-    y_train.to_frame().to_parquet(Y_TRAIN_PATH)
-    y_test.to_frame().to_parquet(Y_TEST_PATH)
+    y_train.to_frame().to_parquet(Y_TRAIN)
+    y_test.to_frame().to_parquet(Y_TEST)
 
     print("Done!")
 

@@ -2,8 +2,9 @@ import pandas as pd
 import numpy as np
 import os
 
-RAW_DATA_PATH = "data/raw"
-OUTPUT_PATH = "data/processed/cicids_combined.parquet"
+from config.settings import RAW_DATA_PATH, COMBINED_DATASET
+
+OUTPUT_PATH = COMBINED_DATASET
 
 
 def load_csv_files(path):
