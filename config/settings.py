@@ -1,15 +1,11 @@
-# Data paths
-RAW_DATA_PATH = "data/raw"
+# Raw dataset paths
+CICIDS_PATH = "data/raw/cicids2017"
+UNSW_PATH = "data/raw/unsw_nb15"
+CTU13_PATH = "data/raw/ctu13"
+
+# Processed dataset paths
 PROCESSED_DATA_PATH = "data/processed"
 
-# Processed dataset
-COMBINED_DATASET = f"{PROCESSED_DATA_PATH}/cicids_combined.parquet"
-
-# Train/test datasets
-X_TRAIN = f"{PROCESSED_DATA_PATH}/X_train.parquet"
-X_TEST = f"{PROCESSED_DATA_PATH}/X_test.parquet"
-Y_TRAIN = f"{PROCESSED_DATA_PATH}/y_train.parquet"
-Y_TEST = f"{PROCESSED_DATA_PATH}/y_test.parquet"
-
-# Model output
-MODEL_PATH = "models/random_forest.pkl"
+CICIDS_OUTPUT = f"{PROCESSED_DATA_PATH}/cicids2017.parquet"
+UNSW_OUTPUT = f"{PROCESSED_DATA_PATH}/unsw_nb15.parquet"
+CTU13_OUTPUT = f"{PROCESSED_DATA_PATH}/ctu13.parquet"
