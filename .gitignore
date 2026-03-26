@@ -3,3 +3,4 @@ data/processed/
 *.parquet
 __pycache__/
 *.pyc
+models/
