@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="dashboard-layout">
+    <div class="card card-feed full-width">
+        <div class="card-header">
+            <h2>Live Flow Feed</h2>
+            <span class="badge">Large live view</span>
+        </div>
+        <div id="feed-list" class="scroll-list flow-list tall-list"></div>
+    </div>
+
+    <div class="grid-2x2">
+        <div class="card stat-card">
+            <div class="card-header"><h2>Traffic Summary</h2></div>
+            <div class="stats-block">
+                <p><strong>Date and time:</strong> <span id="summary-now">-</span></p>
+                <p><strong>Flows read:</strong> <span id="summary-total">0</span></p>
+                <p><strong>BENIGN:</strong> <span id="summary-benign">0</span></p>
+                <p><strong>NOT BENIGN:</strong> <span id="summary-not-benign">0</span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Suspicious Flows</h2></div>
+            <div id="not-benign-list" class="scroll-list"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Alerts</h2></div>
+            <div id="alerts-list" class="scroll-list"></div>
+        </div>
+
+        <div class="card stat-card">
+            <div class="card-header"><h2>Clock</h2></div>
+            <div class="clock-box">
+                <div id="clock-date" class="clock-date">-</div>
+                <div id="clock-time" class="clock-time">-</div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
