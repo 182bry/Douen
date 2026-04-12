@@ -40,7 +40,18 @@ class IngestService:
                 app_state.add_feed_line(feed_line)
                 app_state.processed_flows.append(flow)
 
-                # lines classified as not-benign as saved separately aswell
+                
+                if prediction.is_not_benign and prediction.attack_label.lower() != 'benign':
+                    suspicious_line = self._format_suspicious_line(flow)
+                    app_state.add_not_benign(suspicious_line)
+                    app_state.add_alert(
+                        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - IRREGULAR FLOW DETECTED."
+                    )
+                    app_state.add_alert(
+                        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - POTENTIAL {prediction.attack_label.upper()} DETECTED."
+                    )
+
+                '''
                 if prediction.is_not_benign:
                     suspicious_line = self._format_suspicious_line(flow)
                     app_state.add_not_benign(suspicious_line)
@@ -48,7 +59,7 @@ class IngestService:
                     app_state.add_alert(
                         f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - POTENTIAL {prediction.attack_label.upper()} DETECTED."
                     )
-
+                    '''
             # Clear and store values for some values
             recent_flows = list(app_state.processed_flows)
             app_state.per_second_points.clear()

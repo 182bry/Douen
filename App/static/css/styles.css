@@ -157,7 +157,7 @@ body {
 .status-grid {
     display: grid;
     gap: 0.6rem;
-}
+
 .status-row {
     display: grid;
     grid-template-columns: 180px 1fr;
@@ -169,4 +169,147 @@ body {
     .grid-2x2, .settings-form { grid-template-columns: 1fr; }
     .topbar, .brand-wrap { flex-direction: column; }
     .latest-alert-box { max-width: 100%; min-width: 0; }
+}
+
+
+.auth-layout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    padding: 2rem;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-subtitle {
+    color: var(--text-muted, #888);
+    font-size: 0.85rem;
+    margin: 0.25rem 0 0 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding: 1.5rem 0 0.5rem 0;
+}
+
+.auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.auth-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted, #aaa);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.auth-field input {
+    padding: 0.65rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--border, #333);
+    background: var(--input-bg, #1a1a2e);
+    color: var(--text, #eee);
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.auth-field input:focus {
+    outline: none;
+    border-color: var(--accent, #4e9af1);
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+}
+
+.auth-footer {
+    text-align: center;
+    padding-top: 1rem;
+    font-size: 0.78rem;
+    color: var(--text-muted, #666);
+}
+
+.flash-message {
+    background: rgba(231, 76, 60, 0.15);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    color: #e74c3c;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.nav-link-auth {
+    margin-left: auto;
+    color: var(--text-muted, #aaa);
+}
+
+.nav-link-auth:hover {
+    color: var(--accent, #4e9af1);
+}
+
+
+.alerts-layout {
+    padding: 1rem;
+}
+
+.alert-row {
+    transition: background 0.2s;
+}
+
+.alert-row:hover {
+    background: rgba(255,255,255,0.03);
+}
+
+
+.mitre-tag-box {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overflow-y: auto;
+    max-height: 300px;
+}
+
+.mitre-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    background: rgba(78, 154, 241, 0.08);
+    border: 1px solid rgba(78, 154, 241, 0.2);
+    font-size: 0.8rem;
+}
+
+.mitre-id {
+    font-family: monospace;
+    font-weight: bold;
+    color: #4e9af1;
+    min-width: 55px;
+}
+
+.mitre-name {
+    flex: 1;
+    color: #ccc;
+}
+
+.mitre-attack {
+    font-size: 0.75rem;
+    color: #e74c3c;
+    font-weight: bold;
+    text-transform: uppercase;
 }

@@ -42,7 +42,7 @@ class MockBinaryModel:
             score += 1
         if int(flow['dst_port']) in {21, 22, 23, 3389, 4444, 8080}:
             score += 1
-        return [1 if score >= 2 else 0]
+        return [1 if score >= 1 else 0]
 
 
 class MockMultiClassModel:

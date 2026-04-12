@@ -26,6 +26,14 @@
         <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="{{ url_for('main.visualizations') }}" class="nav-link {% if page == 'visualizations' %}active{% endif %}">Visualizations</a>
         <a href="{{ url_for('main.connection') }}" class="nav-link {% if page == 'connection' %}active{% endif %}">Connection</a>
+        <a href="{{ url_for('main.alerts') }}" class="nav-link {% if page == 'alerts' %}active{% endif %}">Alerts</a>
+
+        {% if is_authenticated %}
+            <span class="nav-link nav-link-auth">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth_views.logout_action') }}" class="nav-link nav-link-auth">Logout</a>
+        {% else %}
+            <a href="{{ url_for('auth_views.login_page') }}" class="nav-link nav-link-auth">Login</a>
+        {% endif %}
     </nav>
 
     <main class="page-shell">

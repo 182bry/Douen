@@ -85,3 +85,28 @@ def llm_test():
         })
     except Exception as exc:
         return jsonify({'status': False, 'message': str(exc)}), 500
+
+@api_views.get('/alerts-data')
+def alerts_data():
+    snapshot = app_state.snapshot()
+    attack_counts = snapshot['charts']['attack_counts']
+
+    
+    alerts_list = snapshot['alerts']
+    critical = sum(1 for a in alerts_list if 'CRITICAL' in a.upper() or 'DDOS' in a.upper())
+    high = sum(1 for a in alerts_list if 'HIGH' in a.upper() or 'DOS' in a.upper())
+    medium = sum(1 for a in alerts_list if 'POTENTIAL' in a.upper())
+    low = len(alerts_list) - critical - high - medium
+
+    return jsonify({
+        'alerts': alerts_list,
+        'not_benign_flows': snapshot['not_benign_flows'],
+        'attack_counts': attack_counts,
+        'severity_counts': {
+            'critical': max(critical, 0),
+            'high': max(high, 0),
+            'medium': max(medium, 0),
+            'low': max(low, 0),
+        },
+        'total_alerts': len(alerts_list),
+    })
