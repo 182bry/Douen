@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }} | {{ page|capitalize }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand-wrap">
+            <img class="logo-img" src="static\logo_icon_simple.png" alt="pictyear">
+            <div>
+                <img class="name-img" src="static\logo_name_light.png" alt="DOUEN">
+                <p class="subheading">AI-Powered Security Operations Centre</p>
+            </div>
+        </div>
+        <div class="latest-alert-box">
+            <span class="alert-label">Latest alert:</span>
+            <span id="latest-alert-text">{{ latest_alert }}</span>
+        </div>
+    </header>
+
+    <nav class="navbar">
+        <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{{ url_for('main.visualizations') }}" class="nav-link {% if page == 'visualizations' %}active{% endif %}">Visualizations</a>
+        <a href="{{ url_for('main.connection') }}" class="nav-link {% if page == 'connection' %}active{% endif %}">Connection</a>
+        <a href="{{ url_for('main.alerts') }}" class="nav-link {% if page == 'alerts' %}active{% endif %}">Alerts</a>
+
+        {% if is_authenticated %}
+            <span class="nav-link nav-link-auth">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth_views.logout_action') }}" class="nav-link nav-link-auth">Logout</a>
+        {% else %}
+            <a href="{{ url_for('auth_views.login_page') }}" class="nav-link nav-link-auth">Login</a>
+        {% endif %}
+    </nav>
+
+    <main class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        window.APP_CONFIG = {
+            pollSeconds: 3,
+            dashboardDataUrl: "{{ url_for('api.dashboard_data') }}",
+            visualizationDataUrl: "{{ url_for('api.visualization_data') }}",
+            settingsUrl: "{{ url_for('api.update_settings') }}",
+            startSimulatorUrl: "{{ url_for('api.start_simulator') }}",
+            stopSimulatorUrl: "{{ url_for('api.stop_simulator') }}",
+            llmTestUrl: "{{ url_for('api.llm_test') }}",
+            statusUrl: "{{ url_for('api.status') }}",
+        };
+    </script>
+    <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+    
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+{% block content %}
+
+<section class="auth-layout">
+    <div class="card auth-card">
+
+        <div class="card-header">
+            <h2>🔐 Sign In to DOUEN SOC</h2>
+            <p class="auth-subtitle">AI-Powered Security Operations Centre</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="flash-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/auth/login" class="auth-form">
+            <div class="auth-field">
+                <label for="username">Username</label>
+                <input
+                    type="text"
+                    id="username"
+                    name="username"
+                    placeholder="Enter your username"
+                    required
+                    autocomplete="username"
+                >
+            </div>
+
+            <div class="auth-field">
+                <label for="password">Password</label>
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary auth-btn">
+                Sign In
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>DOUEN SOC Platform &mdash; Restricted Access</p>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

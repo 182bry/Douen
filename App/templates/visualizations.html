@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="grid-2x2">
+    <div class="card graph-card">
+        <div class="card-header"><h2>Packets per Flow - Last 60 Seconds</h2></div>
+        <div id="chart-60s" class="graph-box"></div>
+    </div>
+
+    <div class="card graph-card">
+        <div class="card-header"><h2>Detected Classes</h2></div>
+        <div id="chart-bar" class="graph-box"></div>
+    </div>
+
+    <div class="card graph-card">
+        <div class="card-header"><h2>Packets per Flow - Last 24 Hours</h2></div>
+        <div id="chart-24h" class="graph-box"></div>
+    </div>
+
+    <div class="card insight-card">
+        <div class="card-header"><h2>LLM Insight</h2></div>
+        <div id="llm-insight" class="insight-box">No insight yet.</div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/visualizations.js') }}"></script>
+{% endblock %}

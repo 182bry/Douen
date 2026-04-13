@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="connection-layout">
+    <div class="card">
+        <div class="card-header"><h2>Connection and Runtime Settings</h2></div>
+        <form id="settings-form" class="settings-form">
+            <label>Flask host
+                <input type="text" name="flask_host" placeholder="127.0.0.1">
+            </label>
+            <label>Flask port
+                <input type="number" name="flask_port" placeholder="5000">
+            </label>
+            <label>Poll seconds
+                <input type="number" step="0.5" name="poll_seconds" placeholder="3">
+            </label>
+            <label>Sender target
+                <input type="text" name="sender_target" placeholder="http://127.0.0.1:5000/api/ingest">
+            </label>
+            <label>LLM base URL
+                <input type="text" name="llm_base_url" placeholder="https://synapse.sergiomathurin.com/v1">
+            </label>
+            <label>LLM model
+                <input type="text" name="llm_model" placeholder="llama3.3-70b-instruct">
+            </label>
+            <label>LLM API key
+                <input type="password" name="llm_api_key" placeholder="Paste API key here">
+            </label>
+            <div class="button-row">
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+                <button type="button" id="btn-test-llm" class="btn">Test LLM</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>Simulator Controls</h2></div>
+        <div class="button-row bottom-space">
+            <button id="btn-start-simulator" class="btn btn-primary">Start Simulator</button>
+            <button id="btn-stop-simulator" class="btn btn-danger">Stop Simulator</button>
+        </div>
+        <div id="simulator-status" class="status-box">Simulator status unknown.</div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>Current Server Status</h2></div>
+        <div id="server-status" class="status-grid"></div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/connection.js') }}"></script>
+{% endblock %}
