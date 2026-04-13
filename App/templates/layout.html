@@ -10,10 +10,10 @@
 <body>
     <header class="topbar">
         <div class="brand-wrap">
-            <div class="brand-pill">DOUEN</div>
+            <img class="logo-img" src="static\logo_icon_simple.png" alt="pictyear">
             <div>
-                <h1>AI-Powered Security Operations Centre</h1>
-                <p class="subheading">Not too AI powered just yet.</p>
+                <img class="name-img" src="static\logo_name_light.png" alt="DOUEN">
+                <p class="subheading">AI-Powered Security Operations Centre</p>
             </div>
         </div>
         <div class="latest-alert-box">
@@ -54,5 +54,7 @@
     </script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>
     {% block scripts %}{% endblock %}
+
+    
 </body>
 </html>

@@ -6,7 +6,7 @@ __pycache__/
 App/custom_config.py
 # C extensions
 *.so
-
+.data
 migrations/*
 
 # Distribution / packaging
