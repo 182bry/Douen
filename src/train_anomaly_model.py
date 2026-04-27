@@ -6,7 +6,7 @@ import pandas as pd
 
 from sklearn.ensemble import IsolationForest
 
-from config.settings import (
+from src.config.settings import (
     CICIDS_TRAIN,
     CICIDS_VALID
 )

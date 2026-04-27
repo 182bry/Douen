@@ -11,7 +11,7 @@ from sklearn.metrics import (
     classification_report
 )
 
-from config.settings import (
+from src.config.settings import (
     X_TRAIN,
     Y_TRAIN,
     X_VALID,

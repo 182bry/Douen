@@ -5,7 +5,7 @@ import pandas as pd
 
 from xgboost import XGBClassifier
 
-from config.settings import (
+from src.config.settings import (
     X_TRAIN,
     Y_TRAIN,
     X_VALID,
