@@ -18,5 +18,6 @@ class Config:
     MAX_FEED_ITEMS = int(os.getenv('MAX_FEED_ITEMS', '250'))
     MAX_ALERTS = int(os.getenv('MAX_ALERTS', '150'))
     MAX_NOT_BENIGN = int(os.getenv('MAX_NOT_BENIGN', '150'))
-    MODEL_DIR = BASE_DIR / 'App' / 'trained_models'
+    MODEL_DIR = BASE_DIR / 'trained_models'
+    FALLBACK_MODEL_DIR = BASE_DIR / ''
     SIMULATOR_DEFAULT_TARGET = os.getenv('SIMULATOR_DEFAULT_TARGET', 'http://127.0.0.1:5000/api/ingest')

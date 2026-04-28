@@ -1,4 +1,7 @@
 App/temp-database.db
+reports/exports/*.pdf
+data/
+.state.dat
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

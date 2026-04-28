@@ -1,21 +1,18 @@
 {% extends 'layout.html' %}
 {% block content %}
-
 <section class="alerts-layout">
-
     <div class="card full-width">
         <div class="card-header">
-            <h2>🚨 Active Alerts</h2>
+            <h2>Active Alerts</h2>
             <span class="badge" id="alert-count-badge">Loading...</span>
         </div>
         <div id="alerts-feed" class="scroll-list tall-list"></div>
     </div>
 
-    <div class="grid-2x2" style="margin-top: 1.5rem;">
-
+    <div class="grid-2x2 alerts-grid-gap">
         <div class="card">
             <div class="card-header"><h2>Alert Statistics</h2></div>
-            <div class="stats-block">
+            <div class="stats-block alerts-text-light">
                 <p><strong>Total alerts:</strong> <span id="stat-total">0</span></p>
                 <p><strong>Critical:</strong> <span id="stat-critical">0</span></p>
                 <p><strong>High:</strong> <span id="stat-high">0</span></p>
@@ -35,14 +32,11 @@
         </div>
 
         <div class="card">
-            <div class="card-header"><h2>MITRE ATT&CK Tags</h2></div>
+            <div class="card-header"><h2>MITRE ATT&amp;CK Tags</h2></div>
             <div id="mitre-tags" class="mitre-tag-box"></div>
         </div>
-
     </div>
-
 </section>
-
 {% endblock %}
 
 {% block scripts %}

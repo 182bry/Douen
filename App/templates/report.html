@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="report-layout">
+    <div class="card full-width">
+        <div class="card-header">
+            <h2>Report Filters</h2>
+            <span class="badge" id="report-total-badge">0 flows</span>
+        </div>
+        <div class="button-row report-filter-row">
+            <label>Start date
+                <input type="date" id="report-start-date">
+            </label>
+            <label>End date
+                <input type="date" id="report-end-date">
+            </label>
+            <button type="button" id="btn-refresh-report" class="btn btn-primary">Refresh Report</button>
+            <button type="button" id="btn-export-pdf" class="btn">Export PDF</button>
+        </div>
+        <div id="report-export-status" class="status-text"></div>
+    </div>
+
+    <div class="grid-2x2">
+        <div class="card graph-card">
+            <div class="card-header"><h2>Total Packets Per Second</h2></div>
+            <div id="report-chart-second" class="graph-box"></div>
+        </div>
+        <div class="card graph-card">
+            <div class="card-header"><h2>Total Packets Per Minute</h2></div>
+            <div id="report-chart-minute" class="graph-box"></div>
+        </div>
+        <div class="card graph-card">
+            <div class="card-header"><h2>Total Packets Per Hour</h2></div>
+            <div id="report-chart-hour" class="graph-box"></div>
+        </div>
+        <div class="card graph-card">
+            <div class="card-header"><h2>Total Packets Per Day</h2></div>
+            <div id="report-chart-day" class="graph-box"></div>
+        </div>
+        <div class="card graph-card">
+            <div class="card-header"><h2>Flow Type Bar Chart</h2></div>
+            <div id="report-chart-bar" class="graph-box"></div>
+        </div>
+        <div class="card graph-card">
+            <div class="card-header"><h2>Flow Type Pie Chart</h2></div>
+            <div id="report-chart-pie" class="graph-box"></div>
+        </div>
+    </div>
+
+    <div class="card full-width">
+        <div class="card-header"><h2>Individual Days</h2></div>
+        <div id="report-days" class="report-days"></div>
+    </div>
+
+    <div class="grid-2x2">
+        <div class="card">
+            <div class="card-header"><h2>AI Insights</h2></div>
+            <div id="report-insights" class="scroll-list tall-list"></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>Alerts</h2></div>
+            <div id="report-alerts" class="scroll-list tall-list"></div>
+        </div>
+        <div class="card full-width">
+            <div class="card-header"><h2>Flows</h2></div>
+            <div id="report-flows" class="scroll-list tall-list"></div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/report.js') }}"></script>
+{% endblock %}
