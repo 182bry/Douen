@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
 {% block content %}
 <section class="grid-2x2">
-    <div class="card graph-card">
-        <div class="card-header"><h2>Total Packets - Last 60 Seconds</h2></div>
-        <div id="chart-60s" class="graph-box"></div>
+    <div class="card graph-card full-width">
+        <div class="card-header"><h2>Packet Activity</h2></div>
+        <div id="chart-packet-activity" class="graph-box"></div>
     </div>
 
     <div class="card graph-card">
@@ -14,11 +14,6 @@
     <div class="card graph-card">
         <div class="card-header"><h2>Total Packets - Last 24 Hours</h2></div>
         <div id="chart-24h" class="graph-box"></div>
-    </div>
-
-    <div class="card insight-card">
-        <div class="card-header"><h2>LLM Insight</h2></div>
-        <div id="llm-insight" class="insight-box">No insight yet.</div>
     </div>
 </section>
 {% endblock %}

@@ -2,7 +2,7 @@
 {% block content %}
 <section class="connection-layout">
     <div class="card">
-        <div class="card-header"><h2>Connection and Runtime Settings</h2></div>
+        <div class="card-header"><h2>Settings and Runtime Settings</h2></div>
         <form id="settings-form" class="settings-form">
             <label>Host URL
                 <input type="text" name="host_url" id="host-url-display" readonly>
@@ -13,6 +13,15 @@
             <label>Poll seconds
                 <input type="number" step="0.5" name="poll_seconds" placeholder="3">
             </label>
+            <label>Correlation window minutes
+                <input type="number" step="1" name="correlation_window_minutes" placeholder="5">
+            </label>
+            <label>Detection API URL
+                <input type="text" name="security_api_url" placeholder="http://127.0.0.1:5001">
+            </label>
+            <label>Detection API key
+                <input type="password" name="security_api_key" placeholder="Optional API key">
+            </label>
             <label>LLM base URL
                 <input type="text" name="llm_base_url" placeholder="https://synapse.sergiomathurin.com/v1">
             </label>
@@ -21,12 +30,6 @@
             </label>
             <label>LLM API key
                 <input type="password" name="llm_api_key" placeholder="Paste API key here">
-            </label>
-            <label>Binary Classification Model
-                <select name="binary_model_name" id="binary-model-select"></select>
-            </label>
-            <label>Anomaly Detection Model
-                <select name="anomaly_model_name" id="anomaly-model-select"></select>
             </label>
             <div class="button-row full-width-row">
                 <button type="submit" class="btn btn-primary">Save Settings</button>
@@ -37,22 +40,9 @@
     </div>
 
     <div class="card">
-        <div class="card-header"><h2>Stream Controls</h2></div>
-        <div class="button-row bottom-space">
-            <label class="checkbox-row">
-                <input type="checkbox" id="simulator-mode-toggle" checked>
-                <span>Use Simulator Mode</span>
-            </label>
-            <button id="btn-start-stream" class="btn btn-primary">Start Stream</button>
-            <button id="btn-stop-stream" class="btn btn-danger">Stop Stream</button>
-        </div>
-        <textarea id="model-metrics-output" class="text-output" readonly>Model details will show here.</textarea>
-        <div id="stream-status" class="status-box">Stream status unknown.</div>
-    </div>
-
-    <div class="card">
         <div class="card-header"><h2>Current Server Status</h2></div>
         <div id="server-status" class="status-grid"></div>
+        <textarea id="pipeline-status-output" class="text-output" readonly>Detection pipeline status will show here.</textarea>
     </div>
 </section>
 {% endblock %}

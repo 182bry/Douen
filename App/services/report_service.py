@@ -32,6 +32,7 @@ def line_chart(points, title, y_label='Packets'):
     buf.seek(0)
     return buf
 
+
 def bar_chart(counts, title):
     '''
     Returns png bytes for a bar chart
@@ -50,6 +51,7 @@ def bar_chart(counts, title):
     buf.seek(0)
     return buf
 
+
 def pie_chart(counts, title):
     '''
     Returns png bytes for a pie chart
@@ -67,16 +69,20 @@ def pie_chart(counts, title):
     buf.seek(0)
     return buf
 
+
+def without_benign(counts):
+    '''
+    Removes benign from graph counts.
+    '''
+    return {k: v for k, v in counts.items() if str(k).lower() != 'benign'}
+
+
 def write_wrapped(pdf, text, x, y, width=90, step=12):
 
     '''
-    Writes lines (strings) to the pdf
-
-    1) Continuously built string until it reaches the width limit
-    2) When last word is reached, draw the remaining line
+    Writes lines to the pdf
     '''
 
-    # 1) Continuously built string until it reaches the width limit
     line = ''
     for word in str(text).split():
         test = f'{line} {word}'.strip()
@@ -86,12 +92,10 @@ def write_wrapped(pdf, text, x, y, width=90, step=12):
             line = word
         else:
             line = test
-    # 2) When last word is reached, draw the remaining line
     if line:
         pdf.drawString(x, y, line)
         y -= step
     return y
-
 
 
 def draw_image(pdf, img_bytes, x, y, w, h):
@@ -105,39 +109,27 @@ def draw_image(pdf, img_bytes, x, y, w, h):
     return y - h - 20
 
 
-# returns pdf bytes for the selected report
-
 def build_report_pdf(snapshot, start_date=None, end_date=None):
     '''
     Builds the PDF report on export.
-    The pdf includes a Summary section which gives numerical data and visualations on all data.
-    Then, there is the individual day section. This section shows a brief visualization of day
-    by day traffic. Lastly, the Flows, Alerts and Insights sections just shows all flows, alerts
-    and insights recorded.
-
-    1) Build report bundles (plot_service.py) of all days in the snapshot within the specified dates
-    2) Create pdf file object with letter size and font
-    3) Header
-    4) Write the traffic summary section
-    5) Write the individual days section
-    6) Write the Flows, Alerts and Insights section
     '''
 
-    # 1) Build report bundles (plot_service.py) of all days in the snapshot within the specified dates
-    bundle = build_report_bundle(snapshot['processed_flows'], start_date, end_date)
-    # 2) Create pdf file object with letter size and font
+    settings = snapshot['settings']
+    bundle = build_report_bundle(
+        snapshot['processed_flows'],
+        start_date,
+        end_date,
+        settings.get('poll_seconds', 3),
+    )
+
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
     y = height - 40
 
-    # 3) Header
-
     pdf.setFont('Helvetica-Bold', 16)
     pdf.drawString(40, y, f"Report of data recorded up to {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     y -= 28
-
-    # 4) Write the traffic summary section
 
     pdf.setFont('Helvetica-Bold', 12)
     pdf.drawString(40, y, 'Traffic Summary-')
@@ -147,6 +139,7 @@ def build_report_pdf(snapshot, start_date=None, end_date=None):
         f"Flows Read - {snapshot['summary']['total_flows']}",
         f"Benign Flows - {snapshot['summary']['benign_count']}",
         f"Non-Benign Flows - {snapshot['summary']['not_benign_count']}",
+        f"Current Mode - {snapshot['summary'].get('active_mode', '-')}",
     ]
     for line in summary_lines:
         pdf.drawString(50, y, line)
@@ -157,11 +150,11 @@ def build_report_pdf(snapshot, start_date=None, end_date=None):
     pdf.drawString(40, y, 'Connection Summary-')
     y -= 18
     pdf.setFont('Helvetica', 10)
-    # Settings
-    settings = snapshot['settings']
     connection_lines = [
-        f"Host URL - {settings.get('flask_host', '127.0.0.1')}/{settings.get('flask_port', 5000)}",
+        f"Host URL - {settings.get('flask_host', '127.0.0.1')}:{settings.get('flask_port', 5000)}",
         f"Sender URL - {settings.get('sender_target', '-')}",
+        f"Detection API URL - {settings.get('security_api_url', '-')}",
+        f"Correlation Window Minutes - {settings.get('correlation_window_minutes', 5)}",
         f"LLM Model - {settings.get('llm_model', '-')}",
         f"LLM Base URL - {settings.get('llm_base_url', '-')}",
         f"LLM API key - {settings.get('llm_api_key', '-')}",
@@ -175,15 +168,14 @@ def build_report_pdf(snapshot, start_date=None, end_date=None):
     pdf.drawString(40, y, 'Graphs-')
     y -= 18
 
-    # Draw graphs from the bundle object
+    y = draw_image(pdf, line_chart(bundle['packet_activity'], 'Packet Activity'), 40, y, 520, 180)
     y = draw_image(pdf, line_chart(bundle['per_second'], 'Total Packets Per Second'), 40, y, 520, 180)
     y = draw_image(pdf, line_chart(bundle['per_minute'], 'Total Packets Per Minute'), 40, y, 520, 180)
     y = draw_image(pdf, line_chart(bundle['per_hour'], 'Total Packets Per Hour'), 40, y, 520, 180)
     y = draw_image(pdf, line_chart(bundle['per_day'], 'Total Packets Per Day'), 40, y, 520, 180)
-    y = draw_image(pdf, bar_chart(bundle['attack_counts'], 'Flow Type Distribution'), 40, y, 520, 180)
+    y = draw_image(pdf, bar_chart(without_benign(bundle['attack_counts']), 'Detected Classes'), 40, y, 520, 180)
     y = draw_image(pdf, pie_chart(bundle['attack_counts'], 'Flow Type Distribution'), 130, y, 320, 220)
 
-    # 5) Write the individual days section
     pdf.showPage()
     y = 740
     pdf.setFont('Helvetica-Bold', 12)
@@ -198,10 +190,9 @@ def build_report_pdf(snapshot, start_date=None, end_date=None):
         pdf.drawString(40, y, day['day'])
         y -= 16
         y = draw_image(pdf, pie_chart(day['counts'], f"{day['day']} Pie"), 40, y, 220, 160)
-        y = draw_image(pdf, bar_chart(day['counts'], f"{day['day']} Bar"), 280, y + 180, 260, 160)
+        y = draw_image(pdf, bar_chart(without_benign(day['counts']), f"{day['day']} Bar"), 280, y + 180, 260, 160)
         y = draw_image(pdf, line_chart(day['hour_series'], f"{day['day']} Hourly Packets"), 40, y, 500, 170)
 
-    # 6) Write the Flows, Alerts and Insights section
     pdf.showPage()
     y = 740
     pdf.setFont('Helvetica-Bold', 12)

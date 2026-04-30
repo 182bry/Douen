@@ -19,8 +19,8 @@ from src.mitre import MITRE_ATTACK_LIBRARY, build_attack_progression, get_mitre_
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 # Default locations of trained models
-DEFAULT_BINARY_MODEL_PATH = PROJECT_ROOT / "models" / "random_forest_binary.pkl"
-DEFAULT_MULTICLASS_MODEL_PATH = PROJECT_ROOT / "models" / "random_forest_multiclass.pkl"
+DEFAULT_BINARY_MODEL_PATH = PROJECT_ROOT / "models" / "xgboost_binary.pkl"
+DEFAULT_MULTICLASS_MODEL_PATH = PROJECT_ROOT / "models" / "xgboost_multiclass.pkl"
 DEFAULT_ANOMALY_MODEL_PATH = PROJECT_ROOT / "models" / "isolation_forest.pkl"
 
 
@@ -478,11 +478,26 @@ class SecurityAnalysisService:
         predictions = self._predict_batch(features)
 
         alerts = []
+        prediction_records = []
         for row_index, prediction_row in predictions.iterrows():
             metadata_row = (
                 metadata.loc[row_index]
                 if not metadata.empty
                 else pd.Series(dtype="object")
+            )
+            attack_type = self._resolve_attack_type(prediction_row)
+            prediction_records.append(
+                {
+                    "row_index": int(row_index),
+                    "binary_prediction": int(prediction_row["binary_prediction"]),
+                    "binary_confidence": float(prediction_row["binary_confidence"]),
+                    "multiclass_label": str(prediction_row["multiclass_label"]),
+                    "multiclass_confidence": float(prediction_row["multiclass_confidence"]),
+                    "anomaly_flag": int(prediction_row["anomaly_flag"]),
+                    "anomaly_score": float(prediction_row["anomaly_score"]),
+                    "attack_type": attack_type,
+                    "is_not_benign": attack_type != "BENIGN",
+                }
             )
             alert = self._build_alert(row_index, metadata_row, prediction_row)
             if alert is not None:
@@ -508,6 +523,7 @@ class SecurityAnalysisService:
                     Counter(alert["attack_type"] for alert in alerts)
                 ),
             },
+            "predictions": prediction_records,
             "alerts": alerts,
             "incidents": incidents,
         }

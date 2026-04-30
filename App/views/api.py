@@ -4,14 +4,21 @@ from flask import Blueprint, jsonify, request
 from openai import OpenAI
 
 from ..services.ingest_service import ingest_service
-from ..services.model_service import model_service
 from ..services.plot_service import build_report_bundle
 from ..services.report_service import save_report_pdf
+from ..services.security_pipeline_client import security_pipeline_client
 from ..services.simulator_manager import simulator_manager
 from ..services.state import app_state
 from ..services.state_manager import save_state
 
 api_views = Blueprint('api', __name__)
+
+
+def without_benign(counts):
+    """
+    Removes benign from graph counts.
+    """
+    return {k: v for k, v in counts.items() if str(k).lower() != 'benign'}
 
 
 @api_views.post('/ingest')
@@ -32,9 +39,10 @@ def dashboard_data():
 @api_views.get('/visualization-data')
 def visualization_data():
     snapshot = app_state.snapshot()
+    charts = dict(snapshot['charts'])
+    charts['attack_counts_no_benign'] = without_benign(charts.get('attack_counts', {}))
     return jsonify({
-        'charts': snapshot['charts'],
-        'llm_insight': snapshot['llm_insight'],
+        'charts': charts,
         'latest_alert': snapshot['summary']['latest_alert'],
     })
 
@@ -44,16 +52,23 @@ def report_data():
     snapshot = app_state.snapshot()
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    bundle = build_report_bundle(snapshot['processed_flows'], start_date, end_date)
+    bundle = build_report_bundle(
+        snapshot['processed_flows'],
+        start_date,
+        end_date,
+        snapshot['settings'].get('poll_seconds', 3),
+    )
     return jsonify({
         'summary': snapshot['summary'],
         'settings': snapshot['settings'],
         'charts': {
+            'packet_activity': bundle['packet_activity'],
             'per_second': bundle['per_second'],
             'per_minute': bundle['per_minute'],
             'per_hour': bundle['per_hour'],
             'per_day': bundle['per_day'],
             'attack_counts': bundle['attack_counts'],
+            'attack_counts_no_benign': without_benign(bundle['attack_counts']),
         },
         'individual_days': bundle['individual_days'],
         'insight_history': snapshot['insight_history'],
@@ -91,8 +106,7 @@ def report_export():
 @api_views.get('/status')
 def status():
     snapshot = app_state.snapshot()
-    snapshot['available_models'] = model_service.available_model_files()
-    snapshot['model_summary_text'] = simulator_manager.model_metrics_text()
+    snapshot['pipeline_status_text'] = security_pipeline_client.summary_text()
     return jsonify(snapshot)
 
 
@@ -101,7 +115,8 @@ def update_settings():
     payload = request.get_json(silent=True) or {}
     allowed = {
         'poll_seconds', 'llm_base_url', 'llm_api_key', 'llm_model',
-        'binary_model_name', 'anomaly_model_name', 'simulator_mode'
+        'simulator_mode', 'security_api_url', 'security_api_key',
+        'correlation_window_minutes',
     }
     with app_state.lock:
         for key, value in payload.items():
@@ -109,10 +124,6 @@ def update_settings():
                 app_state.server_settings[key] = value
         app_state.sync_targets()
         app_state.set_mode_from_settings()
-        model_service.load_selected_models(
-            app_state.server_settings.get('binary_model_name', 'binary_model.pkl'),
-            app_state.server_settings.get('anomaly_model_name', 'multiclass_model.pkl'),
-        )
         save_state()
     return jsonify({'status': 'ok', 'settings': app_state.server_settings, 'message': 'Settings saved.'})
 
@@ -165,19 +176,37 @@ def alerts_data():
     snapshot = app_state.snapshot()
     attack_counts = snapshot['charts']['attack_counts']
     alerts_list = snapshot['alerts']
-    critical = sum(1 for a in alerts_list if 'CRITICAL' in a.upper() or 'DDOS' in a.upper())
-    high = sum(1 for a in alerts_list if 'HIGH' in a.upper() or 'DOS' in a.upper())
-    medium = sum(1 for a in alerts_list if 'POTENTIAL' in a.upper())
-    low = len(alerts_list) - critical - high - medium
-    return jsonify({
-        'alerts': alerts_list,
-        'not_benign_flows': snapshot['not_benign_flows'],
-        'attack_counts': attack_counts,
-        'severity_counts': {
+    alert_records = snapshot.get('alert_records', [])
+    severity_counts = {'critical': 0, 'high': 0, 'medium': 0, 'low': 0}
+    if alert_records:
+        for alert in alert_records:
+            severity = str(alert.get('severity', 'low')).lower()
+            if severity in severity_counts:
+                severity_counts[severity] += 1
+            else:
+                severity_counts['low'] += 1
+    else:
+        critical = sum(1 for a in alerts_list if 'CRITICAL' in a.upper() or 'DDOS' in a.upper())
+        high = sum(1 for a in alerts_list if 'HIGH' in a.upper() or 'DOS' in a.upper())
+        medium = sum(1 for a in alerts_list if 'POTENTIAL' in a.upper())
+        low = len(alerts_list) - critical - high - medium
+        severity_counts = {
             'critical': max(critical, 0),
             'high': max(high, 0),
             'medium': max(medium, 0),
             'low': max(low, 0),
-        },
+        }
+
+    return jsonify({
+        'alerts': alerts_list,
+        'alert_records': alert_records,
+        'not_benign_flows': snapshot['not_benign_flows'],
+        'correlation_output': snapshot.get('correlation_output', []),
+        'incident_records': snapshot.get('incident_records', []),
+        'pipeline_summary': snapshot.get('pipeline_summary', {}),
+        'pipeline_status': snapshot.get('pipeline_status', '-'),
+        'summary': snapshot['summary'],
+        'attack_counts': attack_counts,
+        'severity_counts': severity_counts,
         'total_alerts': len(alerts_list),
     })

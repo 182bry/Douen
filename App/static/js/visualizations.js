@@ -30,10 +30,9 @@ const visualizationScript = (() => {
     async function refreshVisuals() {
         const response = await fetch(window.APP_CONFIG.visualizationDataUrl);
         const data = await response.json();
-        renderLineChart('chart-60s', data.charts.traffic_60s || [], 'Total Packets in the Last 60 Seconds');
-        renderBarChart('chart-bar', data.charts.attack_counts || {});
+        renderLineChart('chart-packet-activity', data.charts.packet_activity || [], 'Packet Activity');
+        renderBarChart('chart-bar', data.charts.attack_counts_no_benign || {});
         renderLineChart('chart-24h', data.charts.traffic_24h || [], 'Total Packets in the Last 24 Hours');
-        document.getElementById('llm-insight').textContent = data.llm_insight || 'LLM key or URL is invalid. Please check settings';
         updateLatestAlert(data.latest_alert);
     }
 

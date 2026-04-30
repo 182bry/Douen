@@ -2,10 +2,13 @@ from App import create_app
 from App.config import Config
 import threading
 import webview
+import subprocess
+import sys
 
 app = create_app()
 
 def run_flask():
+    process = subprocess.Popen([sys.executable, "./src/security_api.py"])
     app.run(host=Config.FLASK_HOST, port=Config.FLASK_PORT, debug=False)
 
 if __name__ == '__main__':

@@ -11,32 +11,37 @@
 
     <div class="grid-2x2">
         <div class="card stat-card">
-            <div class="card-header"><h2>Traffic Summary</h2></div>
+            <div class="card-header"><h2>State Summary</h2></div>
             <div class="stats-block">
                 <p><strong>Date and time:</strong> <span id="summary-now">-</span></p>
                 <p><strong>Flows read:</strong> <span id="summary-total">0</span></p>
+                <p><strong>Current mode:</strong> <span id="summary-mode">-</span></p>
                 <p><strong>BENIGN:</strong> <span id="summary-benign">0</span></p>
                 <p><strong>NOT BENIGN:</strong> <span id="summary-not-benign">0</span></p>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header"><h2>Suspicious Flows</h2></div>
-            <div id="not-benign-list" class="scroll-list"></div>
+            <div class="card-header"><h2>Stream Controls</h2></div>
+            <div class="button-row bottom-space">
+                <label class="checkbox-row">
+                    <input type="checkbox" id="simulator-mode-toggle" checked>
+                    <span>Use Simulator Mode</span>
+                </label>
+                <button id="btn-start-stream" class="btn btn-primary">Start Stream</button>
+                <button id="btn-stop-stream" class="btn btn-danger">Stop Stream</button>
+            </div>
+            <div id="stream-status" class="status-box">Stream status unknown.</div>
         </div>
 
         <div class="card">
-            <div class="card-header"><h2>Alerts</h2></div>
-            <div id="alerts-list" class="scroll-list"></div>
+            <div class="card-header"><h2>Alert Correlation Output</h2></div>
+            <div id="correlation-output" class="scroll-list"></div>
         </div>
 
-        <div class="card stat-card">
-            <div class="card-header"><h2>Clock</h2></div>
-            <div class="clock-box">
-                <div id="clock-date" class="clock-date">-</div>
-                <div id="clock-time" class="clock-time">-</div>
-
-            </div>
+        <div class="card insight-card">
+            <div class="card-header"><h2>AI Insight</h2></div>
+            <div id="llm-insight" class="insight-box">No insight yet.</div>
         </div>
     </div>
 </section>

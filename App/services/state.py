@@ -23,8 +23,9 @@ def _default_server_settings() -> Dict[str, Any]:
         'poll_seconds': 3,
         'sender_target': sender_target,
         'simulator_mode': True,
-        'binary_model_name': 'binary_model.pkl',
-        'anomaly_model_name': 'multiclass_model.pkl',
+        'security_api_url': 'http://127.0.0.1:5001',
+        'security_api_key': '',
+        'correlation_window_minutes': 5,
     }
 
 
@@ -51,6 +52,11 @@ class ModeState:
     not_benign_flows: List[str] = field(default_factory=list)
     processed_flows: List[Dict[str, Any]] = field(default_factory=list)
     insight_history: List[str] = field(default_factory=list)
+    alert_records: List[Dict[str, Any]] = field(default_factory=list)
+    incident_records: List[Dict[str, Any]] = field(default_factory=list)
+    correlation_output: List[str] = field(default_factory=list)
+    pipeline_summary: Dict[str, Any] = field(default_factory=dict)
+    pipeline_status: str = 'Detection pipeline has not run yet.' 
 
     def trim(self):
         self.feed = self.feed[:250]
@@ -58,6 +64,9 @@ class ModeState:
         self.not_benign_flows = self.not_benign_flows[:150]
         self.processed_flows = self.processed_flows[-5000:]
         self.insight_history = self.insight_history[:250]
+        self.alert_records = self.alert_records[:250]
+        self.incident_records = self.incident_records[:150]
+        self.correlation_output = self.correlation_output[:150]
 
     def add_feed_line(self, line: str):
         self.feed.insert(0, line)
@@ -83,6 +92,23 @@ class ModeState:
         if not self.insight_history or self.insight_history[0] != line:
             self.insight_history.insert(0, line)
             self.insight_history = self.insight_history[:250]
+
+    def add_alert_record(self, alert: Dict[str, Any]):
+        self.alert_records.insert(0, alert)
+        self.alert_records = self.alert_records[:250]
+
+    def set_incident_records(self, incidents: List[Dict[str, Any]]):
+        self.incident_records = incidents[:150]
+
+    def set_correlation_output(self, lines: List[str]):
+        self.correlation_output = lines[:150]
+
+    def set_pipeline_summary(self, summary: Dict[str, Any], status: str):
+        self.pipeline_summary = dict(summary or {})
+        self.pipeline_status = status
+        self.alert_records = self.alert_records[:250]
+        self.incident_records = self.incident_records[:150]
+        self.correlation_output = self.correlation_output[:150]
 
 
 @dataclass
@@ -160,6 +186,18 @@ class AppState:
     def add_processed_flow(self, flow: Dict[str, Any]):
         self.active_store().add_processed_flow(flow)
 
+    def add_alert_record(self, alert: Dict[str, Any]):
+        self.active_store().add_alert_record(alert)
+
+    def set_incident_records(self, incidents: List[Dict[str, Any]]):
+        self.active_store().set_incident_records(incidents)
+
+    def set_correlation_output(self, lines: List[str]):
+        self.active_store().set_correlation_output(lines)
+
+    def set_pipeline_summary(self, summary: Dict[str, Any], status: str):
+        self.active_store().set_pipeline_summary(summary, status)
+
     def serializable_dict(self) -> Dict[str, Any]:
         data = {
             'server_settings': dict(self.server_settings),
@@ -177,6 +215,7 @@ class AppState:
         store = self.active_store()
         from .plot_service import (
             build_60s_series,
+            build_poll_activity_series,
             build_minute_series,
             build_24h_series,
             build_day_series,
@@ -196,6 +235,11 @@ class AppState:
             'feed': list(store.feed),
             'alerts': list(store.alerts),
             'not_benign_flows': list(store.not_benign_flows),
+            'alert_records': list(store.alert_records),
+            'incident_records': list(store.incident_records),
+            'correlation_output': list(store.correlation_output),
+            'pipeline_summary': dict(store.pipeline_summary),
+            'pipeline_status': store.pipeline_status,
             'processed_flows': recent_flows,
             'insight_history': list(store.insight_history),
             'sender_status': dict(self.sender_status),
@@ -203,6 +247,10 @@ class AppState:
             'llm_insight': store.latest_llm_insight,
             'charts': {
                 'traffic_60s': build_60s_series(recent_flows),
+                'packet_activity': build_poll_activity_series(
+                    recent_flows,
+                    self.server_settings.get('poll_seconds', 3),
+                ),
                 'traffic_per_minute': build_minute_series(recent_flows),
                 'traffic_24h': build_24h_series(recent_flows),
                 'traffic_per_day': build_day_series(recent_flows),

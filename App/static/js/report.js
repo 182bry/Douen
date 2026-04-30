@@ -41,6 +41,14 @@ const reportScript = (() => {
         }, { responsive: true });
     }
 
+    function withoutBenign(counts) {
+        const cleaned = {};
+        Object.entries(counts || {}).forEach(([key, value]) => {
+            if (key.toLowerCase() !== 'benign') cleaned[key] = value;
+        });
+        return cleaned;
+    }
+
     function buildList(targetId, items, emptyText) {
         const target = document.getElementById(targetId);
         if (!target) return;
@@ -80,7 +88,7 @@ const reportScript = (() => {
             `;
             holder.appendChild(wrap);
             pieChart(`day-pie-${index}`, day.counts, `${day.day} Pie`);
-            barChart(`day-bar-${index}`, day.counts, `${day.day} Bar`);
+            barChart(`day-bar-${index}`, withoutBenign(day.counts), `${day.day} Bar`);
             lineChart(`day-line-${index}`, day.hour_series, `${day.day} Hourly Packets`);
         });
     }
@@ -97,11 +105,12 @@ const reportScript = (() => {
     async function refreshReport() {
         const response = await fetch(`${window.APP_CONFIG.reportDataUrl}?${queryParams().toString()}`);
         const data = await response.json();
+        lineChart('report-chart-packet-activity', data.charts.packet_activity || [], 'Packet Activity');
         lineChart('report-chart-second', data.charts.per_second || [], 'Total Packets Per Second');
         lineChart('report-chart-minute', data.charts.per_minute || [], 'Total Packets Per Minute');
         lineChart('report-chart-hour', data.charts.per_hour || [], 'Total Packets Per Hour');
         lineChart('report-chart-day', data.charts.per_day || [], 'Total Packets Per Day');
-        barChart('report-chart-bar', data.charts.attack_counts || {}, 'Flow Type Bar Chart');
+        barChart('report-chart-bar', data.charts.attack_counts_no_benign || {}, 'Detected Classes');
         pieChart('report-chart-pie', data.charts.attack_counts || {}, 'Flow Type Pie Chart');
         drawIndividualDays(data.individual_days || []);
         buildList('report-insights', data.insight_history || [], 'No insights yet.');

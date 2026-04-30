@@ -25,7 +25,7 @@
     <nav class="navbar">
         <a href="{{ url_for('main.dashboard') }}" class="nav-link {% if page == 'dashboard' %}active{% endif %}">Dashboard</a>
         <a href="{{ url_for('main.visualizations') }}" class="nav-link {% if page == 'visualizations' %}active{% endif %}">Visualizations</a>
-        <a href="{{ url_for('main.connection') }}" class="nav-link {% if page == 'connection' %}active{% endif %}">Connection</a>
+        <a href="{{ url_for('main.connection') }}" class="nav-link {% if page == 'settings' %}active{% endif %}">Settings</a>
         <a href="{{ url_for('main.alerts') }}" class="nav-link {% if page == 'alerts' %}active{% endif %}">Alerts</a>
         <a href="{{ url_for('main.report') }}" class="nav-link {% if page == 'report' %}active{% endif %}">Report</a>
     </nav>
@@ -36,7 +36,7 @@
 
     <script>
         window.APP_CONFIG = {
-            pollSeconds: 3,
+            pollSeconds: {{ settings.get('poll_seconds', 3) if settings is defined else 3 }},
             dashboardDataUrl: "{{ url_for('api.dashboard_data') }}",
             visualizationDataUrl: "{{ url_for('api.visualization_data') }}",
             reportDataUrl: "{{ url_for('api.report_data') }}",
@@ -46,6 +46,7 @@
             stopStreamUrl: "{{ url_for('api.stop_stream') }}",
             llmTestUrl: "{{ url_for('api.llm_test') }}",
             statusUrl: "{{ url_for('api.status') }}",
+            alertsDataUrl: "{{ url_for('api.alerts_data') }}"
         };
     </script>
     <script src="{{ url_for('static', filename='js/common.js') }}"></script>

@@ -7,11 +7,12 @@ import sys
 import threading
 import time
 import uuid
+import numpy as np
 
 from flask import Flask, Response, jsonify, request, stream_with_context
 from flask_cors import CORS
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
+# from flask_limiter import Limiter
+# from flask_limiter.util import get_remote_address
 
 
 # Resolve the project root and add it to sys.path so local modules can be imported
@@ -47,11 +48,11 @@ def _env_str(key: str, default: str) -> str:
 API_KEY = _env_str("SECURITY_API_KEY", "")
 MAX_FLOWS_PER_REQUEST = _env_int("MAX_FLOWS_PER_REQUEST", 5_000)
 MAX_CONTENT_LENGTH_MB = _env_int("MAX_CONTENT_LENGTH_MB", 16)
-RATE_LIMIT = _env_str("RATE_LIMIT", "60 per minute")
+# RATE_LIMIT = _env_str("RATE_LIMIT", "1200 per minute")
 DEFAULT_WINDOW_MINUTES = _env_int("DEFAULT_WINDOW_MINUTES", 5)
 RETENTION_MINUTES = _env_int("RETENTION_MINUTES", 60)
-HOST = _env_str("FLASK_HOST", "0.0.0.0")
-PORT = _env_int("FLASK_PORT", 5000)
+# HOST = _env_str("FLASK_HOST", "127.0.0.1")
+# PORT = _env_int(5001, 8080)
 DEBUG = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
 
 BINARY_MODEL_PATH = _env_str("BINARY_MODEL_PATH", "")
@@ -135,12 +136,12 @@ def create_app() -> Flask:
 
     # Global rate limiting for the API. Memory storage is fine for local/dev
     # usage, but a shared backend would be needed in multi-instance deployment.
-    limiter = Limiter(
-        key_func=get_remote_address,
-        app=app,
-        default_limits=[RATE_LIMIT],
-        storage_uri="memory://",
-    )
+    # limiter = Limiter(
+    #     key_func=get_remote_address,
+    #     app=app,
+    #     default_limits=[RATE_LIMIT],
+    #     storage_uri="memory://",
+    # )
 
     # Build service kwargs only with values that were explicitly configured.
     # This lets the service decide its own defaults when model paths are absent.
@@ -307,8 +308,33 @@ def create_app() -> Flask:
     # Routes — synchronous analysis
     # -----------------------------------------------------------------------
 
+    def make_json_safe(value):
+        '''
+        Converts common NumPy values into normal Python values.
+        '''
+
+        if isinstance(value, dict):
+            return {key: make_json_safe(item) for key, item in value.items()}
+
+        if isinstance(value, list):
+            return [make_json_safe(item) for item in value]
+
+        if isinstance(value, tuple):
+            return [make_json_safe(item) for item in value]
+
+        if isinstance(value, np.integer):
+            return int(value)
+
+        if isinstance(value, np.floating):
+            return float(value)
+
+        if isinstance(value, np.bool_):
+            return bool(value)
+
+        return value
+
     @app.post("/api/v1/security/analyze")
-    @limiter.limit("30 per minute")
+    # @limiter.limit("3000 per minute")
     def analyze_flows():
         # Parse the request body and reject malformed or missing JSON early.
         payload = request.get_json(silent=True)
@@ -353,14 +379,18 @@ def create_app() -> Flask:
         # Notify SSE clients that a synchronous analysis completed.
         _broadcast_sse("analysis_complete", json.dumps(result["summary"]))
 
-        return jsonify(result)
+        print(f'**************** DEBUGGING ******************** RESULT => {result}')
+        safe_result = make_json_safe(result)
+        print(f'**************** DEBUGGING ******************** RESULT AFTER => {safe_result}')
+
+        return jsonify(safe_result)
 
     # -----------------------------------------------------------------------
     # Routes — asynchronous analysis
     # -----------------------------------------------------------------------
 
     @app.post("/api/v1/security/analyze/async")
-    @limiter.limit("30 per minute")
+    # @limiter.limit("3000 per minute")
     def analyze_flows_async():
         # Accept the request, validate it, then hand work off to a background
         # thread so clients can poll for completion.
@@ -511,4 +541,4 @@ app = create_app()
 
 if __name__ == "__main__":
     # Local development entry point.
-    app.run(host=HOST, port=PORT, debug=DEBUG)
+    app.run(host="127.0.0.1", port=5001, debug=DEBUG)

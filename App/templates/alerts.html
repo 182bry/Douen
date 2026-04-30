@@ -3,37 +3,39 @@
 <section class="alerts-layout">
     <div class="card full-width">
         <div class="card-header">
-            <h2>Active Alerts</h2>
+            <h2>Prediction and Correlation Summary</h2>
             <span class="badge" id="alert-count-badge">Loading...</span>
         </div>
-        <div id="alerts-feed" class="scroll-list tall-list"></div>
+        <div class="stats-block alerts-text-light">
+            <p><strong>Total alerts:</strong> <span id="stat-total">0</span></p>
+            <p><strong>Critical:</strong> <span id="stat-critical">0</span></p>
+            <p><strong>High:</strong> <span id="stat-high">0</span></p>
+            <p><strong>Medium:</strong> <span id="stat-medium">0</span></p>
+            <p><strong>Low:</strong> <span id="stat-low">0</span></p>
+            <p><strong>Pipeline status:</strong> <span id="pipeline-status">-</span></p>
+            <p><strong>Correlated incidents:</strong> <span id="incident-count">0</span></p>
+        </div>
     </div>
 
     <div class="grid-2x2 alerts-grid-gap">
         <div class="card">
-            <div class="card-header"><h2>Alert Statistics</h2></div>
-            <div class="stats-block alerts-text-light">
-                <p><strong>Total alerts:</strong> <span id="stat-total">0</span></p>
-                <p><strong>Critical:</strong> <span id="stat-critical">0</span></p>
-                <p><strong>High:</strong> <span id="stat-high">0</span></p>
-                <p><strong>Medium:</strong> <span id="stat-medium">0</span></p>
-                <p><strong>Low:</strong> <span id="stat-low">0</span></p>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-header"><h2>Attack Type Breakdown</h2></div>
-            <div id="attack-breakdown" class="scroll-list"></div>
-        </div>
-
-        <div class="card">
-            <div class="card-header"><h2>Suspicious Flows</h2></div>
+            <div class="card-header"><h2>Anomalies / Suspicious Flows</h2></div>
             <div id="suspicious-feed" class="scroll-list"></div>
         </div>
 
         <div class="card">
-            <div class="card-header"><h2>MITRE ATT&amp;CK Tags</h2></div>
-            <div id="mitre-tags" class="mitre-tag-box"></div>
+            <div class="card-header"><h2>Alerts</h2></div>
+            <div id="alerts-feed" class="scroll-list"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Alert Correlation Output</h2></div>
+            <div id="correlation-feed" class="scroll-list"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Detected Class Breakdown</h2></div>
+            <div id="attack-breakdown" class="scroll-list"></div>
         </div>
     </div>
 </section>

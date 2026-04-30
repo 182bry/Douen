@@ -7,24 +7,24 @@ main_views = Blueprint('main', __name__)
 
 @main_views.route('/')
 def dashboard():
-    return render_template('dashboard.html', page='dashboard', latest_alert=app_state.latest_alert)
+    return render_template('dashboard.html', page='dashboard', latest_alert=app_state.latest_alert, settings=app_state.server_settings)
 
 
 @main_views.route('/visualizations')
 def visualizations():
-    return render_template('visualizations.html', page='visualizations', latest_alert=app_state.latest_alert)
+    return render_template('visualizations.html', page='visualizations', latest_alert=app_state.latest_alert, settings=app_state.server_settings)
 
 
 @main_views.route('/connection')
 def connection():
-    return render_template('connection.html', page='connection', latest_alert=app_state.latest_alert)
+    return render_template('connection.html', page='settings', latest_alert=app_state.latest_alert, settings=app_state.server_settings)
 
 
 @main_views.route('/alerts')
 def alerts():
-    return render_template('alerts.html', page='alerts', latest_alert=app_state.latest_alert)
+    return render_template('alerts.html', page='alerts', latest_alert=app_state.latest_alert, settings=app_state.server_settings)
 
 
 @main_views.route('/report')
 def report():
-    return render_template('report.html', page='report', latest_alert=app_state.latest_alert)
+    return render_template('report.html', page='report', latest_alert=app_state.latest_alert, settings=app_state.server_settings)

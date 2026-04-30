@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 
 from .live_stream_service import live_stream_service
-from .model_service import model_service
+from .security_pipeline_client import security_pipeline_client
 from .state import app_state
 from .state_manager import save_state
 
@@ -27,7 +27,6 @@ class SimulatorManager:
         self.process = None
         app_state.simulator_process_pid = None
 
-    # starts either simulator mode or live network mode
     def start(self):
 
         '''
@@ -100,12 +99,11 @@ class SimulatorManager:
 
         return live_stream_service.stop()
 
-    # gives the text box a quick model summary
     def model_metrics_text(self):
         '''
         Set appropriate model summary on client
         '''
-        return model_service.model_summary(app_state.server_settings.get('simulator_mode', True))
+        return security_pipeline_client.summary_text()
 
 
 simulator_manager = SimulatorManager()
