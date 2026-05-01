@@ -99,9 +99,31 @@ PLOTLY_THEME = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="#0d1b2a",
     font=dict(color="#c0cfe0", family="Rajdhani"),
-    xaxis=dict(gridcolor="#1e3a5f", linecolor="#1e3a5f"),
-    yaxis=dict(gridcolor="#1e3a5f", linecolor="#1e3a5f"),
 )
+
+AXIS_THEME = dict(
+    gridcolor="#1e3a5f",
+    linecolor="#1e3a5f",
+    showline=True,
+    linewidth=1,
+    zeroline=False,
+    ticks="outside",
+    tickcolor="#5c6f88",
+    automargin=True,
+    tickfont=dict(color="#c0cfe0", size=12),
+    title_font=dict(color="#c0cfe0", size=14),
+)
+
+
+def apply_plotly_theme(fig, *, height=None, xaxis=None, yaxis=None, **layout_updates):
+    layout = dict(PLOTLY_THEME)
+    if height is not None:
+        layout["height"] = height
+    layout.update(layout_updates)
+    fig.update_layout(**layout)
+    fig.update_xaxes(**{**AXIS_THEME, **(xaxis or {})})
+    fig.update_yaxes(**{**AXIS_THEME, **(yaxis or {})})
+    return fig
  
 # Data loaders (cached)
  
@@ -282,6 +304,7 @@ def page_overview():
             color_discrete_sequence=["#00d4ff", "#7b2fff", "#ff6b35"]
         )
         fig.update_layout(**PLOTLY_THEME, height=380)
+        apply_plotly_theme(fig, height=380)
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Run the pipeline first to populate this page.")
@@ -348,7 +371,7 @@ def page_binary():
             y=["True BENIGN", "True ATTACK"],
             color_continuous_scale="Blues",
         )
-        fig.update_layout(**PLOTLY_THEME, height=320)
+        apply_plotly_theme(fig, height=320)
         st.plotly_chart(fig, use_container_width=True)
  
     with col_sec:
@@ -364,8 +387,11 @@ def page_binary():
             text=[f"{fpr_pct:.2f}%", f"{adr_pct:.2f}%"],
             textposition="outside",
         ))
-        fig.update_layout(**PLOTLY_THEME, height=320)
-        fig.update_yaxes(range=[0, 110], title_text="Percentage (%)")
+        apply_plotly_theme(
+            fig,
+            height=320,
+            yaxis=dict(range=[0, 110], title_text="Percentage (%)"),
+        )
         st.plotly_chart(fig, use_container_width=True)
  
  
@@ -417,10 +443,12 @@ def page_multiclass():
             y=report_df[metric],
             marker_color=color,
         ))
-    fig.update_layout(
-        **PLOTLY_THEME, barmode="group", height=420,
+    apply_plotly_theme(
+        fig,
+        barmode="group",
+        height=420,
         title="Per-Class Precision / Recall / F1",
-        xaxis_tickangle=-30,
+        xaxis=dict(tickangle=-30),
     )
     st.plotly_chart(fig, use_container_width=True)
  
@@ -431,7 +459,7 @@ def page_multiclass():
         color_continuous_scale="Blues",
         labels=dict(x="Predicted", y="True"),
     )
-    fig2.update_layout(**PLOTLY_THEME, height=520)
+    apply_plotly_theme(fig2, height=520)
     st.plotly_chart(fig2, use_container_width=True)
  
     with st.expander("Full Classification Report"):
@@ -493,6 +521,12 @@ def page_per_class():
         xaxis_tickangle=-30,
         yaxis=dict(range=[0, 1.1], gridcolor="#1e3a5f"),
     )
+    apply_plotly_theme(
+        fig,
+        height=420,
+        xaxis=dict(tickangle=-30),
+        yaxis=dict(range=[0, 1.1]),
+    )
     st.plotly_chart(fig, use_container_width=True)
  
     # Precision / Recall scatter
@@ -509,6 +543,12 @@ def page_per_class():
     fig2.update_traces(textposition="top center")
     fig2.update_layout(**PLOTLY_THEME, height=480,
                        xaxis=dict(range=[0, 1.05]), yaxis=dict(range=[0, 1.05]))
+    apply_plotly_theme(
+        fig2,
+        height=480,
+        xaxis=dict(range=[0, 1.05]),
+        yaxis=dict(range=[0, 1.05]),
+    )
     st.plotly_chart(fig2, use_container_width=True)
  
     # Full table
@@ -608,6 +648,12 @@ is used unchanged.
                 title="Real vs CTGAN-Synthesised Samples per Weak Class",
                 xaxis_tickangle=-20,
             )
+            apply_plotly_theme(
+                fig,
+                barmode="stack",
+                height=380,
+                xaxis=dict(tickangle=-20),
+            )
             st.plotly_chart(fig, use_container_width=True)
  
             with st.expander("Full generation report"):
@@ -653,6 +699,13 @@ is used unchanged.
                 **PLOTLY_THEME, barmode="group", height=420,
                 title="Specialist vs General F1 on Weak Classes",
                 xaxis_tickangle=-30,
+                yaxis=dict(range=[0, 1.15]),
+            )
+            apply_plotly_theme(
+                fig,
+                barmode="group",
+                height=420,
+                xaxis=dict(tickangle=-30),
                 yaxis=dict(range=[0, 1.15]),
             )
             st.plotly_chart(fig, use_container_width=True)
@@ -712,6 +765,11 @@ is used unchanged.
                         title="F1 Improvement: Specialist vs General (positive = specialist wins)",
                         xaxis_tickangle=-30,
                     )
+                    apply_plotly_theme(
+                        fig,
+                        height=380,
+                        xaxis=dict(tickangle=-30),
+                    )
                     st.plotly_chart(fig, use_container_width=True)
             else:
                 st.dataframe(display, use_container_width=True)
@@ -766,6 +824,11 @@ def page_anomaly():
     )
     fig.update_layout(**PLOTLY_THEME, height=400, xaxis_tickangle=-30,
                       title="Anomaly Detection Rate per Label")
+    apply_plotly_theme(
+        fig,
+        height=400,
+        xaxis=dict(tickangle=-30),
+    )
     st.plotly_chart(fig, use_container_width=True)
  
     with st.expander("Full results table"):
@@ -807,6 +870,7 @@ def page_alerts():
         fig = px.pie(sev_df, names="Severity", values="Count",
                      color="Severity", color_discrete_map=sev_colors, hole=0.4)
         fig.update_layout(**PLOTLY_THEME, height=300)
+        apply_plotly_theme(fig, height=300)
         st.plotly_chart(fig, use_container_width=True)
  
     with col_tactic:
@@ -816,6 +880,7 @@ def page_alerts():
         fig2 = px.bar(tactic_counts, x="Events", y="Tactic", orientation="h",
                       color="Events", color_continuous_scale="Blues")
         fig2.update_layout(**PLOTLY_THEME, height=300)
+        apply_plotly_theme(fig2, height=300)
         st.plotly_chart(fig2, use_container_width=True)
  
     st.markdown("#### Top Attacking IPs")
@@ -825,6 +890,7 @@ def page_alerts():
     fig3 = px.bar(top_ips, x="src_ip", y="Total Alerts",
                   color="Total Alerts", color_continuous_scale="Reds")
     fig3.update_layout(**PLOTLY_THEME, height=320, xaxis_tickangle=-30)
+    apply_plotly_theme(fig3, height=320, xaxis=dict(tickangle=-30))
     st.plotly_chart(fig3, use_container_width=True)
  
     st.markdown("#### Alert Timeline")
@@ -833,6 +899,7 @@ def page_alerts():
     fig4 = px.area(timeline, x="Time", y="Alert Count",
                    color_discrete_sequence=["#00d4ff"])
     fig4.update_layout(**PLOTLY_THEME, height=280)
+    apply_plotly_theme(fig4, height=280)
     st.plotly_chart(fig4, use_container_width=True)
  
     st.markdown("#### Correlated Alert Log")
@@ -930,6 +997,13 @@ else:
             xaxis_tickangle=-30,
             yaxis=dict(range=[0, 1.15]),
         )
+        apply_plotly_theme(
+            fig,
+            barmode="group",
+            height=420,
+            xaxis=dict(tickangle=-30),
+            yaxis=dict(range=[0, 1.15]),
+        )
         st.plotly_chart(fig, use_container_width=True)
  
         # ── Delta chart (improvement only) ──
@@ -949,6 +1023,11 @@ else:
             **PLOTLY_THEME, height=360,
             title="Ensemble Δ F1 (green = ensemble wins, red = ensemble hurts)",
             xaxis_tickangle=-30,
+        )
+        apply_plotly_theme(
+            fig2,
+            height=360,
+            xaxis=dict(tickangle=-30),
         )
         st.plotly_chart(fig2, use_container_width=True)
  
