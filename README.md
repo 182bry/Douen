@@ -117,7 +117,7 @@ Routing logic:
 
 ---
 
-## 📈 Results
+##  Results
 
 | Metric      | Value   |
 | ----------- | ------- |
@@ -196,6 +196,14 @@ python -m venv .venv
 
 ```bash
 pip install -r requirements.txt
+```
+
+---
+
+### 4. Download dataset
+
+```bash
+python -m src.download_dataset
 ```
 
 ---
